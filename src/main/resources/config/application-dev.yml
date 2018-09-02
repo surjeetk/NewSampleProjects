@@ -1,0 +1,39 @@
+debug: true  
+server:
+  port: 9001
+  ssl:
+    enabled: false
+  tomcat:
+    protocol-header-https-value: https
+    basedir: K:/Technologies/SpringBoot/TomcatTempDir/
+  error:
+    whitelabel:
+      enabled: false
+spring:
+  profiles: dev      
+  main:
+    banner-mode: console
+  devtools:
+    restart:
+      exclude: static/**
+      additional-paths:
+        - K:/Technologies/SpringBoot/spring_boot_properties/
+  application:
+    admin:
+      enabled: true
+    name: Test Spring Boot Application by Surjeet
+  mvc:
+    contentnegotiation:
+      favor-parameter: true
+  banner:
+    location: classpath:banner_dev.txt
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: beans,conditions,auditevents,configprops,env
+com:
+  test:
+    dev:  this is test property from dev        
+        
