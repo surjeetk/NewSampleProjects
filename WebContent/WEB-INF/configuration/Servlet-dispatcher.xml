@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation=" http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd       
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+	<context:component-scan base-package="com.rshade.controller" />
+	<context:component-scan base-package="com.rshade.bean" />
+	<context:component-scan base-package="com.rshade.dao" />
+	<context:component-scan base-package="com.rshade.service" />
+
+	<mvc:annotation-driven />
+
+	<mvc:default-servlet-handler />
+
+	<mvc:cors>
+		<mvc:mapping path="/oauth/token" />
+	</mvc:cors>
+
+
+
+	<!-- <context:property-placeholder location="file:/InstituteMgmtSys/RshadeClasses/properties/DBconnection.properties, 
+		file:/InstituteMgmtSys/RshadeClasses/properties/mail.properties" ignore-unresolvable="true" 
+		properties-ref="propFileBean.propFilesLocation" /> -->
+
+	<!-- <mvc:cors> <mvc:mapping path="/**" allowed-origins="*" allowed-headers="Content-Type, 
+		Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, 
+		X-Requested-With, requestId, Correlation-Id" allowed-methods="GET, PUT, POST, 
+		DELETE"/> </mvc:cors> -->
+
+
+	<bean id="appProperties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>#{propFileBean.dbPropLoc}</value>
+				<value>#{propFileBean.mailPropLoc}</value>
+				<value>#{propFileBean.tokenPropLoc}</value>
+			</list>
+		</property>
+		<property name="ignoreResourceNotFound" value="true" />
+	</bean>
+
+
+
+
+	<bean id="propFileBean" class="com.rshade.util.ConstantProp" />
+
+	<!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="locations"> <list> Default location inside war file <value>classpath:app.properties</value> 
+		Environment specific location, a fixed path on server <value>file:///opt/my-app/conf/app.properties</value> 
+		</list> </property> <property name="ignoreResourceNotFound" value="true"/> 
+		</bean> -->
+
+	<!-- to read property file -->
+	<!-- <bean id="DBProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="location"> <value>classpath:/DBconnection.properties</value> 
+		</property> </bean> <bean id="mailProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="location"> <value>classpath:/mail.properties</value> </property> 
+		</bean> -->
+
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- take values from property file -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${db.driver}" />
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+	</bean>
+
+	<!-- Hibernate 4 SessionFactory Bean definition -->
+	<bean id="hibernate4AnnotatedSessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.rshade.bean.Student</value>
+				<value>com.rshade.bean.Admin</value>
+			</list>
+		</property>
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect
+				</prop>
+				<prop key="hibernate.show_sql">false</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- take values from property file -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${smtp.host}" />
+		<property name="port" value="${smtp.port}" />
+		<property name="username" value="${smtp.username}" />
+		<property name="password" value="${smtp.password}" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- <bean id="userDAO" class="com.rshade.dao.UserDAOImpl"> <property name="factory" 
+		ref="hibernate4AnnotatedSessionFactory" /> </bean> <bean id="userservice" 
+		class="com.rshade.service.UserServiceImpl"> <property name="userdao" ref="userDAO"></property> 
+		<property name="mailSender" ref="mailSender"></property> </bean> -->
+
+
+	<!-- Configuring interceptors based on URI -->
+	<!-- <mvc:interceptors> <mvc:interceptor> <mvc:mapping path="/logout" /> 
+		<bean class="com.rshade.interceptor.LoggerInterceptor" /> <beans:bean class="com.rshade.interceptor.LoggerInterceptor"></beans:bean> 
+		</mvc:interceptor> </mvc:interceptors> -->
+
+	<!-- <tx:annotation-driven transaction-manager="transactionManager"/> <bean 
+		id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"> 
+		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" /> 
+		</bean> -->
+
+	<bean id="studentDao" class="com.rshade.dao.StudentDaoImpl">
+		<property name="factory" ref="hibernate4AnnotatedSessionFactory" />
+	</bean>
+
+	<bean id="studentservice" class="com.rshade.service.StudentServiceImpl">
+		<property name="studentDao" ref="studentDao" />
+		<property name="mailSender" ref="mailSender" />
+	</bean>
+
+	
+
+</beans>
