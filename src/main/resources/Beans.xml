@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    
+    <context:annotation-config />
+    
+	<bean id="helloWorld" class="com.test.beans.HelloWorld"
+		init-method="afterInitialization" destroy-method="preDestroy">
+		<property name="message" value="Hello World!" />
+	</bean>
+
+	<bean id="helloWorld1" scope="prototype" class="com.test.beans.HelloWorld"
+		init-method="afterInitialization" destroy-method="preDestroy">
+		<property name="message" value="Hello World!" />
+	</bean>
+
+	<bean id="initBean" class="com.test.beans.InitBean" />
+
+	<bean id="destroyBean" class="com.test.beans.DestroyBean" />
+
+	<bean id="customBeanProcessor" class="com.test.beans.CustomPostProcessor" />
+
+	<!-- Autowiring demo -->
+
+	<bean id="addr1" class="com.test.beans.Address">
+		<property name="country" value="india" />
+	</bean>
+
+	<bean id="addr2" class="com.test.beans.Address">
+		<property name="country" value="nepal" />
+	</bean>
+
+	<bean id="student" class="com.test.beans.Student" 
+		p:name="Surjeet">
+		<!-- <property name="addr" ref="addr2" /> -->
+	</bean>
+	
+	<bean id="hijackAroundMethodBean" class="com.test.aspect.HijackAroundMethod" />
+	
+	<bean id="helloWorldProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+	     <property name="target" ref="helloWorld" />
+	     <property name="interceptorNames">
+	         <list>
+	             <value>hijackAroundMethodBean</value>
+	         </list>
+	     </property>
+	    
+	</bean>
+
+</beans>
